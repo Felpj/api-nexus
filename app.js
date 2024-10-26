@@ -31,11 +31,12 @@ sequelize.sync({ alter: true })
 // Importar e usar os módulos
 const userModule = require('./modules/user/user.module');
 const authModule = require('./modules/auth/auth.module');
+const conversionModule = require('./modules/conversion/conversion.module');
 
 
 app.use('/users', userModule);
 app.use('/auth', authModule);
-// Outras rotas...
+app.use('/conversion', conversionModule);
 
 // Iniciar o servidor
 const PORT = process.env.PORT;
