@@ -36,11 +36,9 @@ class CoinGeckoAPI {
    */
   async getCurrentPrice(cryptoIds, vsCurrencies) {
     try {
-      // Converter parâmetros para string, caso sejam arrays
       const ids = Array.isArray(cryptoIds) ? cryptoIds.join(',') : cryptoIds;
       const vs = Array.isArray(vsCurrencies) ? vsCurrencies.join(',') : vsCurrencies;
 
-      // Verificar se a resposta está em cache
       const cacheKey = `price_${ids}_${vs}`;
       const cachedData = this.cache.get(cacheKey);
 
@@ -49,7 +47,6 @@ class CoinGeckoAPI {
         return cachedData;
       }
 
-      // Fazer a requisição para a API da CoinGecko
       console.log(`Fazendo requisição para CoinGecko: ${ids} vs ${vs}`);
       const response = await this.instance.get('/simple/price', {
         params: {
@@ -60,19 +57,16 @@ class CoinGeckoAPI {
 
       const data = response.data;
 
-      // Armazenar no cache
       this.cache.set(cacheKey, data);
       console.log(`Dados de preço armazenados no cache para: ${cacheKey}`);
 
       return data;
     } catch (error) {
-      // Tratamento de erros
       console.error('Erro ao obter preços atuais:', error.message);
       throw new Error('Não foi possível obter os preços atuais das criptomoedas.');
     }
   }
 
-  // Possíveis métodos futuros, como getHistoricalPrice, etc.
 }
 
 module.exports = new CoinGeckoAPI();

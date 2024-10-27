@@ -1,7 +1,9 @@
-// conversion/conversion.service.js
-const axios = require('axios');
-const  Conversion  = require('./conversion.model');
-const CoinGeckoAPI = require('../../utils/coinGeckoAPI');
+// modules/conversion/conversion.service.js
+
+const Conversion = require('./conversion.model'); 
+const CoinGeckoAPI = require('../../utils/coinGeckoAPI'); 
+const historyService = require('../history/history.service'); 
+const sequelize = require('../../config/db'); 
 
 class ConversionService {
   /**
@@ -12,52 +14,73 @@ class ConversionService {
    * @param {number} params.amount - Quantidade a ser convertida.
    * @returns {Object} - Dados da conversão realizada.
    */
-  async performConversion({ userId, cryptoCurrency, amount }) {
-    try {
-      // Validar entradas
-      if (!cryptoCurrency || !amount || amount <= 0) {
-        throw new Error('Criptomoeda e quantidade válidas são necessárias.');
-      }
+  // modules/conversion/conversion.service.js
 
-      // Obter taxas de câmbio usando a CoinGeckoAPI
-      const rates = await CoinGeckoAPI.getCurrentPrice(cryptoCurrency, ['brl', 'usd']);
+async performConversion({ userId, cryptoCurrency, amount }) {
+  console.log('Iniciando conversão:', { userId, cryptoCurrency, amount });
 
-      if (!rates || !rates[cryptoCurrency]) {
-        throw new Error('Não foi possível obter as taxas de câmbio.');
-      }
-
-      const brlRate = rates[cryptoCurrency].brl;
-      const usdRate = rates[cryptoCurrency].usd;
-
-      // Calcular valores convertidos
-      const convertedValueBRL = amount * brlRate;
-      const convertedValueUSD = amount * usdRate;
-
-      // Criar registro de conversão no banco de dados
-      const conversion = await Conversion.create({
-        userId,
-        cryptoCurrency,
-        amount,
-        convertedValueBRL,
-        convertedValueUSD,
-        conversionDate: new Date(),
-      });
-
-      // // Registrar no histórico
-      // await History.create({
-      //   userId,
-      //   action: 'conversion',
-      //   details: `Convertido ${amount} ${cryptoCurrency.toUpperCase()} para BRL e USD.`,
-      // });
-
-      return conversion;
-    } catch (error) {
-      console.error('Erro no serviço de conversão:', error.message);
-      throw error;
-    }
+  if (!amount || amount <= 0) {
+    console.error('Valor de amount inválido:', amount);
+    throw new Error('Quantidade inválida para conversão.');
   }
 
-  
+  const transaction = await sequelize.transaction();
+
+  try {
+    // Obter taxas de câmbio
+    const rates = await CoinGeckoAPI.getCurrentPrice(cryptoCurrency, ['brl', 'usd']);
+    if (!rates || !rates[cryptoCurrency]) {
+      throw new Error('Não foi possível obter as taxas de câmbio.');
+    }
+
+    const brlRate = rates[cryptoCurrency].brl;
+    const usdRate = rates[cryptoCurrency].usd;
+
+    const convertedValueBRL = amount * brlRate;
+    const convertedValueUSD = amount * usdRate;
+
+    console.log('Valores convertidos:', { convertedValueBRL, convertedValueUSD });
+
+    const conversion = await Conversion.create({
+      userId,
+      cryptoCurrency,
+      amount,
+      convertedValueBRL,
+      convertedValueUSD,
+      conversionDate: new Date(),
+    }, { transaction });
+
+    console.log('Conversão criada no banco de dados:', conversion);
+
+    const historyData = {
+      userId,
+      cryptoCurrency,
+      quantity: amount,
+      convertedValueBRL,
+      convertedValueUSD,
+      timestamp: new Date(),
+    };
+
+    console.log('Dados para o histórico:', historyData);
+
+    if (!historyData.quantity) {
+      console.error('Quantidade está nula antes de criar o histórico.');
+      throw new Error('Quantidade para o histórico não pode ser nula.');
+    }
+
+    await historyService.createHistoryEntry(historyData, transaction);
+
+    await transaction.commit();
+    return conversion;
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Erro no serviço de conversão:', error.message);
+    throw error;
+  }
+}
+
+
+
 }
 
 module.exports = new ConversionService();

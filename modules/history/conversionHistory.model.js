@@ -1,20 +1,24 @@
-// models/conversion.model.js
+// models/conversionHistory.model.js
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/db');
+const sequelize = require('../../config/db'); // Importar a instância do Sequelize
 
-const Conversion = sequelize.define('Conversion', {
+const ConversionHistory = sequelize.define('ConversionHistory', {
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'Users', // Certifique-se de que a tabela 'Users' existe
+      key: 'id',
+    },
   },
   cryptoCurrency: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  amount: {
+  quantity: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+    allowNull: false, // Assegura que o campo não seja nulo
   },
   convertedValueBRL: {
     type: DataTypes.FLOAT,
@@ -24,14 +28,14 @@ const Conversion = sequelize.define('Conversion', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
-  conversionDate: {
+  timestamp: {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: DataTypes.NOW,
   },
 }, {
-  tableName: 'conversions', // Certifique-se de que este é o nome correto da tabela
+  tableName: 'conversion_histories',
   timestamps: false,
 });
 
-module.exports = Conversion;
+module.exports = ConversionHistory;
