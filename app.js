@@ -33,12 +33,14 @@ const userModule = require('./modules/user/user.module');
 const authModule = require('./modules/auth/auth.module');
 const conversionModule = require('./modules/conversion/conversion.module');
 const historyModule = require('./modules/history/history.module');
+const favoriteModule = require('./modules/favorite/favorite.module'); // Certifique-se de importar o modelo
 
 
 app.use('/users', userModule);
 app.use('/auth', authModule);
 app.use('/conversion', conversionModule);
 app.use('/api', historyModule);
+app.use('/favorite', favoriteModule);
 
 // Iniciar o servidor
 const PORT = process.env.PORT;
