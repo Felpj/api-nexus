@@ -1,5 +1,6 @@
 // config/db.js
 const { Sequelize } = require('sequelize');
+const mysql2 = require('mysql2');
 require('dotenv').config();
 
 const sequelize = new Sequelize(
@@ -9,6 +10,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT || 'mysql',
+    dialectModule: mysql2,
     port: process.env.DB_PORT || 3306,
     define: {
       timestamps: true,      
