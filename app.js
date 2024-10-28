@@ -20,7 +20,7 @@ sequelize.authenticate()
   });
 
 // Sincronizar os modelos com o banco de dados
-sequelize.sync({ alter: true })
+sequelize.sync()
   .then(() => {
     console.log('Modelos sincronizados com o banco de dados.');
   })

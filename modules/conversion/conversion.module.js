@@ -6,6 +6,7 @@ const authenticate = require('../../common/middleware/auth.middleware'); // Midd
 
 // Rota para realizar a conversão
 router.post('/convert', authenticate, ConversionController.convert);
+router.get('/history', authenticate, ConversionController.getHistory);
 
 // Exportar as rotas
 module.exports = router;

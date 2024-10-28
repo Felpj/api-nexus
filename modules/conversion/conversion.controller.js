@@ -36,7 +36,15 @@ const getHistory = async (req, res) => {
 
     console.log('Solicitação de histórico de conversões para o usuário:', userId, 'Página:', page, 'Limite:', limit);
 
-    const historyData = await conversionService.getConversionHistory(userId, parseInt(page), parseInt(limit));
+    // Conversão para inteiros e validação
+    const parsedPage = parseInt(page, 10);
+    const parsedLimit = parseInt(limit, 10);
+
+    if (isNaN(parsedPage) || isNaN(parsedLimit)) {
+      return res.status(400).json({ error: 'Parâmetros de página e limite devem ser números válidos.' });
+    }
+
+    const historyData = await conversionService.getConversionHistory(userId, parsedPage, parsedLimit);
 
     res.status(200).json({
       message: 'Histórico de conversões recuperado com sucesso',
@@ -46,6 +54,6 @@ const getHistory = async (req, res) => {
     console.error('Erro ao recuperar o histórico de conversões:', error.message);
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-module.exports = { convert };
+module.exports = { convert,getHistory };

@@ -27,6 +27,40 @@ class HistoryService {
       throw new Error('Erro ao registrar conversão no histórico: ' + error.message);
     }
   }
+
+  /**
+   * Recupera o histórico de conversões do usuário.
+   * @param {number} userId - ID do usuário.
+   * @param {number} page - Número da página para paginação.
+   * @param {number} limit - Número de registros por página.
+   * @returns {Object} - Dados paginados do histórico de conversões.
+   */
+  async getConversionHistory(userId, page = 1, limit = 10) {
+    try {
+      console.log('Recuperando histórico de conversões para o usuário:', userId, 'Página:', page, 'Limite:', limit);
+
+      const offset = (page - 1) * limit;
+
+      const { rows: history, count } = await ConversionHistory.findAndCountAll({
+        where: { userId },
+        order: [['timestamp', 'DESC']], // Ordena do mais recente para o mais antigo
+        limit,
+        offset,
+      });
+
+      console.log(`Histórico de conversões para o usuário ${userId}:`, history);
+
+      return {
+        total: count,
+        page,
+        limit,
+        history,
+      };
+    } catch (error) {
+      console.error('Erro ao recuperar o histórico de conversões:', error.message);
+      throw error;
+    }
+  }
   
 }
 

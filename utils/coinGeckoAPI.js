@@ -5,12 +5,10 @@ const NodeCache = require('node-cache');
 
 class CoinGeckoAPI {
   constructor() {
-    // Configurações padrão
     this.baseURL = 'https://api.coingecko.com/api/v3';
-    this.timeout = 5000; // Tempo limite em milissegundos
-    this.cache = new NodeCache({ stdTTL: 60 }); // Cache com TTL de 60 segundos
+    this.timeout = 5000; 
+    this.cache = new NodeCache({ stdTTL: 60 }); 
 
-    // Obtendo a chave da API a partir das variáveis de ambiente
     this.apiKey = process.env.COINGECKO_API_KEY;
 
     this.instance = axios.create({
@@ -21,11 +19,6 @@ class CoinGeckoAPI {
         'X-CG-APIKEY': this.apiKey, // Incluindo a chave da API no cabeçalho
       },
     });
-
-    // Opcional: Configurar retries em caso de falhas transitórias
-    // Por exemplo, usando axios-retry
-    // const axiosRetry = require('axios-retry');
-    // axiosRetry(this.instance, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
   }
 
   /**
