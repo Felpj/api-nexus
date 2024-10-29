@@ -22,43 +22,43 @@ class CoinGeckoAPI {
   }
 
   /**
-   * Obtém os preços atuais das criptomoedas especificadas em relação às moedas fiduciárias desejadas.
-   * @param {string|string[]} cryptoIds - ID(s) da(s) criptomoeda(s) (ex: 'bitcoin' ou ['bitcoin', 'ethereum'])
-   * @param {string|string[]} vsCurrencies - Moeda(s) fiduciária(s) (ex: 'usd' ou ['usd', 'brl'])
-   * @returns {Promise<Object>} - Preços atuais das criptomoedas solicitadas
-   */
-  async getCurrentPrice(cryptoIds, vsCurrencies) {
-    try {
-      const ids = Array.isArray(cryptoIds) ? cryptoIds.join(',') : cryptoIds;
-      const vs = Array.isArray(vsCurrencies) ? vsCurrencies.join(',') : vsCurrencies;
+ * Obtém a lista dos nomes das criptomoedas disponíveis para conversão.
+ * @param {string} vsCurrency - Moeda fiduciária de referência (ex: 'usd').
+ * @returns {Promise<string[]>} - Lista de nomes das criptomoedas disponíveis.
+ */
+async getCryptocurrenciesList(vsCurrency = 'usd') {
+  try {
+    const cacheKey = `cryptocurrencies_list_${vsCurrency}`;
+    const cachedData = this.cache.get(cacheKey);
 
-      const cacheKey = `price_${ids}_${vs}`;
-      const cachedData = this.cache.get(cacheKey);
-
-      if (cachedData) {
-        console.log(`Dados de preço encontrados no cache para: ${cacheKey}`);
-        return cachedData;
-      }
-
-      console.log(`Fazendo requisição para CoinGecko: ${ids} vs ${vs}`);
-      const response = await this.instance.get('/simple/price', {
-        params: {
-          ids,
-          vs_currencies: vs,
-        },
-      });
-
-      const data = response.data;
-
-      this.cache.set(cacheKey, data);
-      console.log(`Dados de preço armazenados no cache para: ${cacheKey}`);
-
-      return data;
-    } catch (error) {
-      console.error('Erro ao obter preços atuais:', error.message);
-      throw new Error('Não foi possível obter os preços atuais das criptomoedas.');
+    if (cachedData) {
+      console.log(`Dados de criptomoedas encontrados no cache para: ${cacheKey}`);
+      return cachedData;
     }
+
+    console.log(`Fazendo requisição para listar criptomoedas: ${vsCurrency}`);
+    const response = await this.instance.get('/coins/markets', {
+      params: {
+        vs_currency: vsCurrency,
+        order: 'market_cap_desc',
+        per_page: 100, // Número de criptomoedas a serem retornadas (ajustável conforme necessidade)
+        page: 1,
+        sparkline: false,
+      },
+    });
+
+    // Filtrar apenas os nomes das criptomoedas
+    const data = response.data.map(coin => coin.name);
+
+    this.cache.set(cacheKey, data);
+    console.log(`Dados de criptomoedas armazenados no cache para: ${cacheKey}`);
+
+    return data;
+  } catch (error) {
+    console.error('Erro ao listar criptomoedas:', error.message);
+    throw new Error('Não foi possível listar as criptomoedas disponíveis.');
   }
+}
 
 }
 
