@@ -17,7 +17,7 @@ class AuthService {
     if (!validPass) throw new Error('Senha inválida');
 
     // Gerar token JWT
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1000h' });
     return token;
   }
 }
