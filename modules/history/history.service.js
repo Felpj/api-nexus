@@ -41,7 +41,7 @@ class HistoryService {
       
       const offset = (page - 1) * limit;
       
-      const { count, rows } = await Conversion.findAndCountAll({
+      const { count, rows } = await ConversionHistory.findAndCountAll({
         where: { userId },
         order: [['conversionDate', 'DESC']],
         limit,

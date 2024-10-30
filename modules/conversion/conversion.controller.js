@@ -48,7 +48,7 @@ const getHistory = async (req, res) => {
       return res.status(400).json({ error: 'Parâmetros de página e limite devem ser números válidos e maiores que zero.' });
     }
 
-    const historyData = await historyService.getConversionHistory(userId, parsedPage, parsedLimit);
+    const historyData = await conversionService.getConversionHistory(userId, parsedPage, parsedLimit);
 
     res.status(200).json({
       message: 'Histórico de conversões recuperado com sucesso',
