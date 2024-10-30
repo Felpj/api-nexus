@@ -29,35 +29,35 @@ class HistoryService {
   }
 
   /**
-   * Recupera o histórico de conversões do usuário.
+   * Recupera o histórico de conversões de um usuário com paginação.
    * @param {number} userId - ID do usuário.
-   * @param {number} page - Número da página para paginação.
+   * @param {number} page - Número da página.
    * @param {number} limit - Número de registros por página.
-   * @returns {Object} - Dados paginados do histórico de conversões.
+   * @returns {Promise<Object>} - Dados paginados do histórico de conversões.
    */
   async getConversionHistory(userId, page = 1, limit = 10) {
     try {
-      console.log('Recuperando histórico de conversões para o usuário:', userId, 'Página:', page, 'Limite:', limit);
-
+      console.log(`Recuperando histórico para o usuário ${userId}, página ${page}, limite ${limit}`);
+      
       const offset = (page - 1) * limit;
-
-      const { rows: history, count } = await ConversionHistory.findAndCountAll({
+      
+      const { count, rows } = await Conversion.findAndCountAll({
         where: { userId },
-        order: [['timestamp', 'DESC']], // Ordena do mais recente para o mais antigo
+        order: [['conversionDate', 'DESC']],
         limit,
         offset,
       });
-
-      console.log(`Histórico de conversões para o usuário ${userId}:`, history);
-
+      
+      const totalPages = Math.ceil(count / limit);
+      
       return {
-        total: count,
-        page,
-        limit,
-        history,
+        totalRecords: count,
+        totalPages,
+        currentPage: page,
+        records: rows,
       };
     } catch (error) {
-      console.error('Erro ao recuperar o histórico de conversões:', error.message);
+      console.error('Erro ao recuperar histórico de conversões:', error.message);
       throw error;
     }
   }
