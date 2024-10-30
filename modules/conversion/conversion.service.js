@@ -80,21 +80,36 @@ async performConversion({ userId, cryptoCurrency, amount }) {
 }
 
 /**
-   * Recupera o histórico de conversões do usuário.
+   * Recupera o histórico de conversões de um usuário com paginação.
    * @param {number} userId - ID do usuário.
-   * @param {number} page - Número da página para paginação.
+   * @param {number} page - Número da página.
    * @param {number} limit - Número de registros por página.
-   * @returns {Object} - Dados paginados do histórico de conversões.
+   * @returns {Promise<Object>} - Dados paginados do histórico de conversões.
    */
 async getConversionHistory(userId, page = 1, limit = 10) {
   try {
-    console.log('Recuperando histórico de conversões para o usuário:', userId, 'Página:', page, 'Limite:', limit);
+    console.log(`Recuperando histórico para o usuário ${userId}, página ${page}, limite ${limit}`);
 
-    const historyData = await historyService.getConversionHistory(userId, page, limit);
+    const offset = (page - 1) * limit;
 
-    return historyData;
+    // Utilizando findAndCountAll para obter total de registros e os registros paginados
+    const { count, rows } = await Conversion.findAndCountAll({
+      where: { userId },
+      order: [['conversionDate', 'DESC']],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    return {
+      totalRecords: count,
+      totalPages,
+      currentPage: page,
+      records: rows,
+    };
   } catch (error) {
-    console.error('Erro no serviço ao recuperar histórico:', error.message);
+    console.error('Erro ao recuperar histórico de conversões:', error.message);
     throw error;
   }
 }
