@@ -60,10 +60,10 @@ class CoinGeckoAPI {
     }
   }
 
-  /**
- * Obtém a lista dos nomes das criptomoedas disponíveis para conversão.
+ /**
+ * Obtém a lista dos IDs, nomes e símbolos das criptomoedas disponíveis para conversão.
  * @param {string} vsCurrency - Moeda fiduciária de referência (ex: 'usd').
- * @returns {Promise<string[]>} - Lista de nomes das criptomoedas disponíveis.
+ * @returns {Promise<Array<{ id: string, name: string, symbol: string }>>} - Lista de criptomoedas disponíveis.
  */
 async getCryptocurrenciesList(vsCurrency = 'usd') {
   try {
@@ -86,8 +86,12 @@ async getCryptocurrenciesList(vsCurrency = 'usd') {
       },
     });
 
-    // Filtrar apenas os nomes das criptomoedas
-    const data = response.data.map(coin => coin.name);
+    // Retornar um array de objetos com id, name e symbol
+    const data = response.data.map(coin => ({
+      id: coin.id,
+      name: coin.name,
+      symbol: coin.symbol,
+    }));
 
     this.cache.set(cacheKey, data);
     console.log(`Dados de criptomoedas armazenados no cache para: ${cacheKey}`);
@@ -98,6 +102,7 @@ async getCryptocurrenciesList(vsCurrency = 'usd') {
     throw new Error('Não foi possível listar as criptomoedas disponíveis.');
   }
 }
+
 
 }
 
