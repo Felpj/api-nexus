@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "u306944386_nexus_backend",
+    "password": "Nexus_backend10",
+    "database": "u306944386_nexus_backend",
+    "host": "srv1596.hstgr.io",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "u306944386_nexus_backend",
+    "password": "Nexus_backend10",
+    "database": "u306944386_nexus_backend",
+    "host": "srv1596.hstgr.io",
+    "port": 3306,
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "u306944386_nexus_backend",
+    "password": "Nexus_backend10",
+    "database": "u306944386_nexus_backend",
+    "host": "srv1596.hstgr.io",
+    "port": 3306,
+    "dialect": "mysql"
+  }
+}

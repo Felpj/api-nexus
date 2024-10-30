@@ -1,12 +1,18 @@
 // models/conversion.model.js
-
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
+const User = require('./user.model'); // Certifique-se de importar o modelo User
 
 const Conversion = sequelize.define('Conversion', {
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: User,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   cryptoCurrency: {
     type: DataTypes.STRING,
@@ -30,8 +36,14 @@ const Conversion = sequelize.define('Conversion', {
     defaultValue: DataTypes.NOW,
   },
 }, {
-  tableName: 'conversions', // Certifique-se de que este é o nome correto da tabela
-  timestamps: false,
+  tableName: 'conversions',
+  timestamps: true, // Adiciona os campos createdAt e updatedAt
+  underscored: true, // Usa snake_case nos campos
 });
+
+// Definindo a relação com User
+Conversion.associate = (models) => {
+  Conversion.belongsTo(models.User, { foreignKey: 'userId' });
+};
 
 module.exports = Conversion;
