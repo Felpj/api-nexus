@@ -6,7 +6,7 @@ const sequelize = require('./config/db');
 require('dotenv').config();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://web-api-nexus-1mdn.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type',
