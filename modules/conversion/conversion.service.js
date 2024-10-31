@@ -92,7 +92,6 @@ async getConversionHistory(userId, page = 1, limit = 10) {
 
     const offset = (page - 1) * limit;
 
-    // Utilizando findAndCountAll para obter total de registros e os registros paginados
     const { count, rows } = await Conversion.findAndCountAll({
       where: { userId },
       order: [['conversionDate', 'DESC']],

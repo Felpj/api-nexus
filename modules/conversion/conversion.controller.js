@@ -13,10 +13,9 @@ const historyService = require('../history/history.service');
  */
 const convert = async (req, res) => {
   try {
-    const userId = req.user.id; // Certifique-se de que o middleware de autenticação está populando req.user
+    const userId = req.user.id; 
     const { cryptoCurrency, amount } = req.body;
 
-    // Log para verificar os dados recebidos
     console.log('Dados recebidos no controlador:', { userId, cryptoCurrency, amount });
 
     const conversion = await conversionService.performConversion({ userId, cryptoCurrency, amount });
@@ -35,8 +34,8 @@ const convert = async (req, res) => {
 
 const getHistory = async (req, res) => {
   try {
-    const userId = req.user.id; // Obtém o ID do usuário logado
-    const { page = 1, limit = 10 } = req.query; // Parâmetros de paginação opcionais
+    const userId = req.user.id; 
+    const { page = 1, limit = 10 } = req.query; 
 
     console.log('Solicitação de histórico de conversões para o usuário:', userId, 'Página:', page, 'Limite:', limit);
 
@@ -68,20 +67,16 @@ const getHistory = async (req, res) => {
  */
 async function executeConversionFlow(req, res) {
   try {
-    // Passo 1: Obter o userId do token JWT
-    const userId = req.user.id; // req.user deve estar preenchido pelo middleware de autenticação
+    const userId = req.user.id; 
 
-    // Passo 2: Obter cryptoCurrency e amount do corpo da requisição
     const { cryptoCurrency, amount } = req.body;
 
-    // Validação dos parâmetros de entrada
     if (!userId || !cryptoCurrency || !amount) {
       throw new Error('Parâmetros insuficientes. Certifique-se de que cryptoCurrency e amount foram informados.');
     }
 
     console.log('Iniciando fluxo de conversão:', { userId, cryptoCurrency, amount });
 
-    // Passo 3: Obter as taxas de câmbio usando CoinGeckoAPI
     const rates = await CoinGeckoAPI.getCurrentPrice(cryptoCurrency, ['brl', 'usd']);
     if (!rates || !rates[cryptoCurrency]) {
       throw new Error('Não foi possível obter as taxas de câmbio.');
@@ -90,17 +85,14 @@ async function executeConversionFlow(req, res) {
     const brlRate = rates[cryptoCurrency].brl;
     const usdRate = rates[cryptoCurrency].usd;
 
-    // Passo 4: Calcular os valores convertidos
     const convertedValueBRL = amount * brlRate;
     const convertedValueUSD = amount * usdRate;
 
     console.log('Taxas obtidas:', { brlRate, usdRate });
     console.log('Valores convertidos:', { convertedValueBRL, convertedValueUSD });
 
-    // Passo 5: Criar a transação no banco e salvar a conversão
     const transaction = await sequelize.transaction();
     try {
-      // Criar conversão no banco de dados
       const conversion = await Conversion.create({
         userId,
         cryptoCurrency,
@@ -112,7 +104,6 @@ async function executeConversionFlow(req, res) {
 
       console.log('Conversão salva no banco de dados:', conversion);
 
-      // Passo 6: Registrar a conversão no histórico do usuário
       const historyData = {
         userId,
         cryptoCurrency,
@@ -124,12 +115,10 @@ async function executeConversionFlow(req, res) {
 
       await historyService.createHistoryEntry(historyData, transaction);
 
-      // Commit da transação
       await transaction.commit();
 
       console.log('Conversão registrada com sucesso no histórico.');
 
-      // Passo 7: Retornar os dados da conversão
       return res.status(200).json({
         message: 'Conversão realizada com sucesso',
         data: {
@@ -139,7 +128,6 @@ async function executeConversionFlow(req, res) {
       });
 
     } catch (error) {
-      // Caso haja algum erro, desfaz a transação
       await transaction.rollback();
       console.error('Erro ao realizar conversão e registrar histórico:', error.message);
       return res.status(500).json({ error: 'Erro ao realizar conversão: ' + error.message });

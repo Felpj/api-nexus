@@ -20,14 +20,13 @@ const createHistory = async (req, res) => {
   }
 };
 
-// Obter histórico de um usuário
 const getUserHistory = async (req, res) => {
   try {
-    const userId = req.user.id; // ID do usuário autenticado
-    const { filter, order } = req.query; // Filtragem e ordenação
+    const userId = req.user.id; 
+    const { filter, order } = req.query; 
 
-    const filters = {}; // Adicione lógicas de filtro específicas aqui
-    const orderConfig = order ? [order.split(',')] : [['timestamp', 'DESC']]; // Ordenação por padrão
+    const filters = {}; 
+    const orderConfig = order ? [order.split(',')] : [['timestamp', 'DESC']]; 
 
     const history = await historyService.getUserHistory(userId, filters, orderConfig);
 
